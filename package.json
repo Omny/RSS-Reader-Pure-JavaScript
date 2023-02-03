@@ -1,0 +1,19 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "RSS-reader",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Omny/frontend-project-11.git"
+  },
+  "author": "Artem Petrishchev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Omny/frontend-project-11/issues"
+  },
+  "homepage": "https://github.com/Omny/frontend-project-11#readme"
+}
