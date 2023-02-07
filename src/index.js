@@ -1,4 +1,7 @@
 import './styles.scss';
 import * as bootstrap from 'bootstrap';
+import * as yup from 'yup';
 
-console.log('Hello World!');
+const reender = (state) => {
+  console.log('Hello World!');
+};
