@@ -1,23 +1,34 @@
-function has(obj, path) {
-  return Object.prototype.hasOwnProperty.call(obj, path);
-}
+const handleProcessState = (elements, processState, initialState) => {
+  const { form } = elements;
+  const urlField = elements.fields.url;
+  const { submitButton } = elements;
+  const { feedbackElement } = elements;
 
-const handleProcessState = (elements, processState) => {
   switch (processState) {
     case 'sent':
-      elements.submitButton.disabled = false;
+      submitButton.disabled = false;
+      form.reset();
+      urlField.classList.remove('is-invalid');
+      urlField.focus();
+      feedbackElement.classList.remove('text-danger');
+      feedbackElement.classList.add('text-success');
+      feedbackElement.textContent = 'done';
       break;
 
     case 'error':
-      // elements.submitButton.disabled = false;
+      submitButton.disabled = false;
+      urlField.classList.add('is-invalid');
+      feedbackElement.classList.remove('text-success');
+      feedbackElement.classList.add('text-danger');
+      feedbackElement.textContent = initialState.form.error; // replace with language variable
       break;
 
     case 'sending':
-      elements.submitButton.disabled = true;
+      submitButton.disabled = true;
       break;
 
     case 'filling':
-      elements.submitButton.disabled = false;
+      submitButton.disabled = false;
       break;
 
     default:
@@ -25,41 +36,21 @@ const handleProcessState = (elements, processState) => {
   }
 };
 
-const renderErrors = (elements, errors, prevErrors, state) => {
-  const fieldName = 'url';
-  const fieldElement = elements.fields[fieldName];
+const renderPosts = (elements, value) => {
+  // container.innerHTML = '';
+  // const buttons = state.posts.map();
 
-  const error = errors[fieldName];
-  const fieldHadError = has(prevErrors, fieldName);
-  const fieldHasError = has(errors, fieldName);
-  if (!fieldHadError && !fieldHasError) {
-    return;
-  }
-
-  if (fieldHadError && !fieldHasError) {
-    fieldElement.classList.remove('is-invalid');
-    elements.feedbackElement.textContent = '';
-    return;
-  }
-
-  if (state.form.fieldsUi.touched[fieldName] && fieldHasError) {
-    fieldElement.classList.add('is-invalid');
-    elements.feedbackElement.textContent = error.message;
-  }
+  // container.append(...buttons);
 };
 
 const render = (elements, initialState) => (path, value, prevValue) => {
   switch (path) {
     case 'form.processState':
-      handleProcessState(elements, value);
+      handleProcessState(elements, value, initialState);
       break;
 
-    case 'form.valid':
-      elements.submitButton.disabled = !value;
-      break;
-
-    case 'form.errors':
-      renderErrors(elements, value, prevValue, initialState);
+    case 'posts':
+      renderPosts(elements, value);
       break;
 
     default:
