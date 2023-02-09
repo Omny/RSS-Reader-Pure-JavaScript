@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "bootstrap": "^5.2.3",
+    "lodash.uniqueid": "^4.0.1",
     "on-change": "^4.0.2",
     "yup": "^0.32.11"
   }
