@@ -1,4 +1,4 @@
-import * as bootstrap from 'bootstrap';
+import 'bootstrap';
 import i18n from 'i18next';
 import * as yup from 'yup';
 import onChange from 'on-change';
@@ -6,8 +6,16 @@ import uniqueId from 'lodash.uniqueid';
 import resources from './locales/index.js';
 import render from './view.js';
 
+const loadRss = (url, state) => {
+
+};
+
+const updateRss = (state) => {
+
+};
+
 const validateUrl = (url, urlsList) => {
-  const urlSchema = yup.string().url().nullable().notOneOf(urlsList, 'this URL is a duplicate');
+  const urlSchema = yup.string().url('invalidUrlFormat').required('urlIsRequired').notOneOf(urlsList, 'urlIsDuplicate');
   return urlSchema.validate(url, { abortEarly: false })
     .then(() => null)
     .catch((e) => e.message);
@@ -29,6 +37,8 @@ const app = async () => {
     },
     feedbackElement: document.querySelector('p.feedback'),
     submitButton: document.querySelector('button[type="submit"]'),
+    postsContainer: document.querySelector('.posts'),
+    feedsContainer: document.querySelector('.feeds'),
   };
 
   const initialState = {
@@ -37,7 +47,7 @@ const app = async () => {
     form: {
       processState: 'filling',
       processError: null,
-      status: null,
+      error: null,
     },
   };
 
@@ -55,19 +65,29 @@ const app = async () => {
     validateUrl(url, urlsList)
       .then((error) => {
         if (error) {
-          state.form.status = error;
+          state.form.error = error;
           state.form.processState = 'error';
           return;
         }
+        loadRss(url, state); // доделать
         state.feeds.push({
           id: uniqueId(),
           url,
         });
-        state.form.status = 'URL loaded successfully';
         state.form.processState = 'sent';
       })
       .then(() => console.log(state));
   });
+
+  elements.postsContainer.addEventListener('click', (e) => {
+    e.preventDefault();
+    // dom api - перехват и всплытие объясняет почему отрабатывает когда кликаем по ссылкам
+    // нужно условие, если кликнули по ссылке, то меняется состояние
+    // становится серая
+    // если по пустому месту, то ничего происходить не должно
+  });
+
+  updateRss(state); // запускаем, сама крутится и делает
 };
 
 export default app;

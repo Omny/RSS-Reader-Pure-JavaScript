@@ -2,8 +2,9 @@ export default {
   translation: {
     en: 'English',
     ru: 'Русский',
-    'this must be a valid URL': 'Ссылка должна быть валидным URL',
-    'this URL is a duplicate': 'RSS уже существует',
-    'URL loaded successfully': 'RSS успешно загружен',
+    invalidUrlFormat: 'Ссылка должна быть валидным URL',
+    urlIsRequired: 'Заполните поле RSS',
+    urlIsDuplicate: 'RSS уже существует',
+    urlLoadedSuccessfully: 'RSS успешно загружен',
   },
 };
