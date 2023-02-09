@@ -1,4 +1,4 @@
-const handleProcessState = (elements, processState, initialState) => {
+const handleProcessState = (elements, processState, initialState, i18nInstance) => {
   const { form } = elements;
   const urlField = elements.fields.url;
   const { submitButton } = elements;
@@ -12,7 +12,7 @@ const handleProcessState = (elements, processState, initialState) => {
       urlField.focus();
       feedbackElement.classList.remove('text-danger');
       feedbackElement.classList.add('text-success');
-      feedbackElement.textContent = 'done';
+      feedbackElement.textContent = i18nInstance.t(initialState.form.status);
       break;
 
     case 'error':
@@ -20,7 +20,7 @@ const handleProcessState = (elements, processState, initialState) => {
       urlField.classList.add('is-invalid');
       feedbackElement.classList.remove('text-success');
       feedbackElement.classList.add('text-danger');
-      feedbackElement.textContent = initialState.form.error; // replace with language variable
+      feedbackElement.textContent = i18nInstance.t(initialState.form.status);
       break;
 
     case 'sending':
@@ -39,6 +39,7 @@ const handleProcessState = (elements, processState, initialState) => {
 const renderPosts = (elements, value) => {
   // container.innerHTML = '';
   // const buttons = state.posts.map();
+  // добавлять данные через textcontent, чтобы избежать уязвимостей
 
   // container.append(...buttons);
 };
@@ -47,7 +48,7 @@ const render = (elements, initialState, i18nInstance) => (path, value, prevValue
   // console.log(i18nInstance.t('ru'));
   switch (path) {
     case 'form.processState':
-      handleProcessState(elements, value, initialState);
+      handleProcessState(elements, value, initialState, i18nInstance);
       break;
 
     case 'posts':

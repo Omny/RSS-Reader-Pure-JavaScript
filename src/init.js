@@ -7,7 +7,7 @@ import resources from './locales/index.js';
 import render from './view.js';
 
 const validateUrl = (url, urlsList) => {
-  const urlSchema = yup.string().url().nullable().notOneOf(urlsList, 'URL is duplicate');
+  const urlSchema = yup.string().url().nullable().notOneOf(urlsList, 'this URL is a duplicate');
   return urlSchema.validate(url, { abortEarly: false })
     .then(() => null)
     .catch((e) => e.message);
@@ -37,7 +37,7 @@ const app = async () => {
     form: {
       processState: 'filling',
       processError: null,
-      error: null,
+      status: null,
     },
   };
 
@@ -54,16 +54,17 @@ const app = async () => {
     const urlsList = state.feeds.map((feed) => feed.url);
     validateUrl(url, urlsList)
       .then((error) => {
-        state.form.error = error;
         if (error) {
+          state.form.status = error;
           state.form.processState = 'error';
           return;
         }
-        state.form.processState = 'sent';
         state.feeds.push({
           id: uniqueId(),
           url,
         });
+        state.form.status = 'URL loaded successfully';
+        state.form.processState = 'sent';
       })
       .then(() => console.log(state));
   });
