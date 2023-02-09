@@ -43,7 +43,8 @@ const renderPosts = (elements, value) => {
   // container.append(...buttons);
 };
 
-const render = (elements, initialState) => (path, value, prevValue) => {
+const render = (elements, initialState, i18nInstance) => (path, value, prevValue) => {
+  // console.log(i18nInstance.t('ru'));
   switch (path) {
     case 'form.processState':
       handleProcessState(elements, value, initialState);

@@ -1,8 +1,10 @@
 import * as bootstrap from 'bootstrap';
+import i18n from 'i18next';
 import * as yup from 'yup';
 import onChange from 'on-change';
-import render from './view';
 import uniqueId from 'lodash.uniqueid';
+import resources from './locales/index.js';
+import render from './view.js';
 
 const validateUrl = (url, urlsList) => {
   const urlSchema = yup.string().url().nullable().notOneOf(urlsList, 'URL is duplicate');
@@ -11,7 +13,15 @@ const validateUrl = (url, urlsList) => {
     .catch((e) => e.message);
 };
 
-const app = () => {
+const app = async () => {
+  const defaultLanguage = 'ru';
+  const i18nInstance = i18n.createInstance();
+  await i18nInstance.init({
+    lng: defaultLanguage,
+    debug: false,
+    resources,
+  });
+
   const elements = {
     form: document.querySelector('.rss-form'),
     fields: {
@@ -31,7 +41,7 @@ const app = () => {
     },
   };
 
-  const state = onChange(initialState, render(elements, initialState));
+  const state = onChange(initialState, render(elements, initialState, i18nInstance));
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
