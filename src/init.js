@@ -2,6 +2,7 @@ import * as bootstrap from 'bootstrap';
 import * as yup from 'yup';
 import onChange from 'on-change';
 import render from './view';
+import uniqueId from 'lodash.uniqueid';
 
 const validateUrl = (url, urlsList) => {
   const urlSchema = yup.string().url().nullable().notOneOf(urlsList, 'URL is duplicate');
@@ -21,7 +22,7 @@ const app = () => {
   };
 
   const initialState = {
-    feeds: [],
+    feeds: [], // массив объектов, у каждого свой ID
     posts: [], // feedId - ссылка на фид у каждого поста
     form: {
       processState: 'filling',
@@ -40,7 +41,8 @@ const app = () => {
     const formData = new FormData(e.target);
     const url = formData.get('url');
 
-    validateUrl(url, state.feeds)
+    const urlsList = state.feeds.map((feed) => feed.url);
+    validateUrl(url, urlsList)
       .then((error) => {
         state.form.error = error;
         if (error) {
@@ -48,7 +50,10 @@ const app = () => {
           return;
         }
         state.form.processState = 'sent';
-        state.feeds.push(url);
+        state.feeds.push({
+          id: uniqueId(),
+          url,
+        });
       })
       .then(() => console.log(state));
   });
