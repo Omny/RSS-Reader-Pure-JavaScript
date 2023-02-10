@@ -6,5 +6,6 @@ export default {
     urlIsRequired: 'Заполните поле RSS',
     urlIsDuplicate: 'RSS уже существует',
     urlLoadedSuccessfully: 'RSS успешно загружен',
+    urlDownloadError: 'Ресурс не содержит валидный RSS',
   },
 };
