@@ -7,44 +7,75 @@ import axios from 'axios';
 import resources from './locales/index.js';
 import render from './view.js';
 
-// export const buildProxiedUrl = (url) => {
-//   const proxy = 'https://allorigins.hexlet.app';
-//   const proxyURL = new URL(`${proxy}/get?url=${encodeURIComponent(url)}`);
-//   proxyURL.searchParams.append('disableCache', 'true');
-//   return proxyURL.href;
-// };
+const buildProxyUrl = (url) => {
+  const proxy = 'https://allorigins.hexlet.app/get?disableCache=true&url=';
+  const encodedUrl = encodeURIComponent(url);
+  return `${proxy}${encodedUrl}`;
+};
+
+function parseRSS(xml) {
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(xml, 'text/xml');
+
+  const title = xmlDoc.querySelector('title').textContent;
+  const description = xmlDoc.querySelector('description').textContent;
+  const link = xmlDoc.querySelector('link').textContent;
+
+  const items = Array.from(xmlDoc.querySelectorAll('item')).map((item) => ({
+    title: item.querySelector('title').textContent,
+    link: item.querySelector('link').textContent,
+    description: item.querySelector('description').textContent,
+  }));
+
+  return {
+    title,
+    description,
+    link,
+    items,
+  };
+}
 
 const loadRss = (url, state) => {
   // загрузка нового фида и запись в состояние
   // получить файл
-  // const proxiedUrl = buildProxiedUrl(url);
-  axios.get(url)
+  const proxyUrl = buildProxyUrl(url);
+  axios.get(proxyUrl)
     .then((response) => {
-      // handle success
+      if (!response.data.contents || response.data.status.http_code !== 200) {
+        throw new Error('urlDownloadError');
+      }
+      const parsedContent = parseRSS(response.data.contents);
+      const {
+        description,
+        title,
+        link,
+        items,
+      } = parsedContent;
+
+      const id = uniqueId();
+
       state.feeds.push({
-        id: uniqueId(),
+        id,
         url,
+        description,
+        title,
+        link,
       });
+
+      items.forEach((item) => {
+        state.posts.push({ id, ...item });
+      });
+
       state.form.error = null;
       state.form.processState = 'sent';
       console.log('axios прошел');
-      console.log(response);
+      // console.log(response);
     })
     .catch(() => {
       state.form.error = 'urlDownloadError';
       state.form.processState = 'error';
       console.log('ошибка axios');
     });
-  // .finally(() => {
-  //   // always executed
-  // });
-  // если не ок, то новая ошибка
-  // распарсить фид
-  // если не ок, то новая ошибка
-  // получить название
-  // получить описание
-  // получить топики
-  // присвоить топикам id, сохранить названия и ссылки
 };
 
 const updateRss = (state) => {
@@ -80,8 +111,8 @@ const app = async () => {
     feeds: [], // массив объектов, у каждого свой ID
     posts: [], // feedId - ссылка на фид у каждого поста
     form: {
-      processState: 'filling',
       processError: null,
+      processState: 'filling',
       error: null,
     },
   };
@@ -90,8 +121,8 @@ const app = async () => {
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
-    state.form.processState = 'sending';
     state.form.processError = null;
+    state.form.processState = 'sending';
     const formData = new FormData(e.target);
     const url = formData.get('url');
     const urlsList = state.feeds.map((feed) => feed.url);
