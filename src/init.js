@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import 'bootstrap';
 import i18n from 'i18next';
 import * as yup from 'yup';
@@ -42,7 +43,7 @@ const loadRss = (url, state) => {
   const proxyUrl = buildProxyUrl(url);
   axios.get(proxyUrl)
     .then((response) => {
-      if (!response.data.contents || response.data.status.http_code !== 200) {
+      if (!response.data.contents) {
         throw new Error('urlDownloadError');
       }
       const parsedContent = parseRSS(response.data.contents);
@@ -75,8 +76,13 @@ const loadRss = (url, state) => {
       console.log('axios прошел');
       // console.log(response);
     })
-    .catch(() => {
-      state.form.error = 'urlDownloadError';
+    .catch((error) => {
+      console.log('error: ', error.code);
+      if (error.code === 'ERR_NETWORK') {
+        state.form.error = 'networkError';
+      } else {
+        state.form.error = 'urlDownloadError';
+      }
       state.form.processState = 'error';
       console.log('ошибка axios');
     });
@@ -84,6 +90,8 @@ const loadRss = (url, state) => {
 
 const updateRss = (state) => {
   // обновление фидов и запрос новых постов раз в 5 секунд
+  // используй finaly
+  // подумай над promiseAll
 };
 
 const validateUrl = (url, urlsList) => {

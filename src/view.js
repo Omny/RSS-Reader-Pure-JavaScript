@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 const handleProcessState = (elements, processState, initialState, i18nInstance) => {
   const { form } = elements;
   const urlField = elements.fields.url;
@@ -36,8 +38,89 @@ const handleProcessState = (elements, processState, initialState, i18nInstance) 
   }
 };
 
-const renderPosts = (elements, value) => {
+const renderPosts = (elements, value, initialState, i18nInstance) => {
+  const { postsContainer } = elements;
+  postsContainer.innerHTML = '';
+  const cardPosts = document.createElement('div');
+  cardPosts.classList.add('card', 'border-0');
+  postsContainer.append(cardPosts);
+
+  const cardPostsBody = document.createElement('div');
+  cardPostsBody.classList.add('card-body');
+  cardPosts.append(cardPostsBody);
+
+  const cardPostsTitle = document.createElement('h2');
+  cardPostsTitle.classList.add('card-title', 'h4');
+  cardPostsTitle.innerText = i18nInstance.t('posts');
+  cardPostsBody.append(cardPostsTitle);
+
+  const ulPosts = document.createElement('ul');
+  ulPosts.classList.add('list-group', 'border-0', 'rounded-0');
+  cardPosts.append(ulPosts);
+
+  const liPosts = [];
+  initialState.posts.forEach((post) => {
+    const id = _.uniqueId(); // перенести в init
+    const liPost = document.createElement('li');
+    liPost.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+    const aPost = document.createElement('a');
+    aPost.classList.add('fw-bold');
+    aPost.setAttribute('href', post.link);
+    aPost.setAttribute('data-id', id);
+    aPost.setAttribute('rel', 'noopener noreferrer');
+    aPost.setAttribute('target', '_blank');
+    aPost.innerText = post.title;
+    liPost.append(aPost);
+    const buttonPost = document.createElement('button');
+    buttonPost.setAttribute('type', 'button');
+    buttonPost.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    buttonPost.setAttribute('data-id', id);
+    buttonPost.setAttribute('data-bs-toggle', 'modal');
+    buttonPost.setAttribute('data-bs-target', '#modal');
+    buttonPost.innerText = i18nInstance.t('view');
+    liPost.append(buttonPost);
+    liPosts.push(liPost);
+  });
+  ulPosts.append(...liPosts);
+
+  const { feedsContainer } = elements;
+  feedsContainer.innerHTML = '';
+  const cardFeeds = document.createElement('div');
+  cardFeeds.classList.add('card', 'border-0');
+  feedsContainer.append(cardFeeds);
+
+  const cardFeedsBody = document.createElement('div');
+  cardFeedsBody.classList.add('card-body');
+  cardFeeds.append(cardFeedsBody);
+
+  const cardFeedsTitle = document.createElement('h2');
+  cardFeedsTitle.classList.add('card-title', 'h4');
+  cardFeedsTitle.innerText = i18nInstance.t('feeds');
+  cardFeedsBody.append(cardFeedsTitle);
+
+  const ulFeeds = document.createElement('ul');
+  ulFeeds.classList.add('list-group', 'border-0', 'rounded-0');
+  cardFeeds.append(ulFeeds);
+
+  const liFeeds = [];
+  initialState.feeds.forEach((feed) => {
+    const liFeed = document.createElement('li');
+    liFeed.classList.add('list-group-item', 'border-0', 'border-end-0');
+    const h3Feed = document.createElement('h3');
+    h3Feed.classList.add('h6', 'm-0');
+    h3Feed.innerText = feed.title;
+    liFeed.append(h3Feed);
+    const pFeed = document.createElement('p');
+    pFeed.classList.add('m-0', 'small', 'text-black-50');
+    pFeed.innerText = feed.description;
+    liFeed.append(pFeed);
+    liFeeds.push(liFeed);
+  });
+  ulFeeds.append(...liFeeds);
+
+  // feedsContainer.innerText = i18nInstance.t('posts');
   // container.innerHTML = '';
+
   // const buttons = state.posts.map();
   // добавлять данные через textcontent, чтобы избежать уязвимостей
 
@@ -45,14 +128,13 @@ const renderPosts = (elements, value) => {
 };
 
 const render = (elements, initialState, i18nInstance) => (path, value, prevValue) => {
-  // console.log(i18nInstance.t('ru'));
   switch (path) {
     case 'form.processState':
       handleProcessState(elements, value, initialState, i18nInstance);
       break;
 
     case 'posts':
-      renderPosts(elements, value);
+      renderPosts(elements, value, initialState, i18nInstance);
       break;
 
     default:
