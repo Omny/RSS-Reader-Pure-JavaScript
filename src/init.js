@@ -2,7 +2,8 @@ import 'bootstrap';
 import i18n from 'i18next';
 import * as yup from 'yup';
 import onChange from 'on-change';
-import uniqueId from 'lodash.uniqueid';
+import _ from 'lodash';
+
 import axios from 'axios';
 import resources from './locales/index.js';
 import render from './view.js';
@@ -21,17 +22,17 @@ function parseRSS(xml) {
   const description = xmlDoc.querySelector('description').textContent;
   const link = xmlDoc.querySelector('link').textContent;
 
-  const items = Array.from(xmlDoc.querySelectorAll('item')).map((item) => ({
-    title: item.querySelector('title').textContent,
-    link: item.querySelector('link').textContent,
-    description: item.querySelector('description').textContent,
+  const posts = Array.from(xmlDoc.querySelectorAll('item')).map((post) => ({
+    title: post.querySelector('title').textContent,
+    link: post.querySelector('link').textContent,
+    description: post.querySelector('description').textContent,
   }));
 
   return {
     title,
     description,
     link,
-    items,
+    posts,
   };
 }
 
@@ -49,10 +50,10 @@ const loadRss = (url, state) => {
         description,
         title,
         link,
-        items,
+        posts,
       } = parsedContent;
 
-      const id = uniqueId();
+      const id = _.uniqueId();
 
       state.feeds.push({
         id,
@@ -62,9 +63,12 @@ const loadRss = (url, state) => {
         link,
       });
 
-      items.forEach((item) => {
-        state.posts.push({ id, ...item });
+      const postsToAdd = [];
+      posts.forEach((post) => {
+        postsToAdd.push({ id, ...post });
       });
+      const mergedPosts = _.unionWith(state.posts, postsToAdd, _.isEqual);
+      state.posts = mergedPosts;
 
       state.form.error = null;
       state.form.processState = 'sent';
@@ -108,12 +112,11 @@ const app = async () => {
   };
 
   const initialState = {
-    feeds: [], // массив объектов, у каждого свой ID
-    posts: [], // feedId - ссылка на фид у каждого поста
+    feeds: [],
+    posts: [],
     form: {
-      processError: null,
-      processState: 'filling',
       error: null,
+      processState: 'filling',
     },
   };
 
@@ -121,7 +124,7 @@ const app = async () => {
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
-    state.form.processError = null;
+    state.form.error = null;
     state.form.processState = 'sending';
     const formData = new FormData(e.target);
     const url = formData.get('url');
