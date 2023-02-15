@@ -38,8 +38,6 @@ function parseRSS(xml) {
 }
 
 const loadRss = (url, state) => {
-  // загрузка нового фида и запись в состояние
-  // получить файл
   const proxyUrl = buildProxyUrl(url);
   axios.get(proxyUrl)
     .then((response) => {
@@ -54,21 +52,26 @@ const loadRss = (url, state) => {
         posts,
       } = parsedContent;
 
-      const id = _.uniqueId();
-
+      const feedId = _.uniqueId();
       state.feeds.push({
-        id,
+        id: feedId,
         url,
         description,
         title,
         link,
       });
 
-      const postsToAdd = [];
+      const newPosts = [];
       posts.forEach((post) => {
-        postsToAdd.push({ id, ...post });
+        const id = _.uniqueId();
+        newPosts.push({
+          feedId,
+          id,
+          ...post,
+        });
       });
-      const mergedPosts = _.unionWith(state.posts, postsToAdd, _.isEqual);
+      // const isPostLinkDuplicate = (post, othPost) => post.link === othPost.link;
+      const mergedPosts = _.unionBy(state.posts, newPosts, 'link');
       state.posts = mergedPosts;
 
       state.form.error = null;
@@ -150,13 +153,13 @@ const app = async () => {
       .then(() => console.log(state));
   });
 
-  elements.postsContainer.addEventListener('click', (e) => {
-    e.preventDefault();
-    // dom api - перехват и всплытие объясняет почему отрабатывает когда кликаем по ссылкам
-    // нужно условие, если кликнули по ссылке, то меняется состояние
-    // становится серая
-    // если по пустому месту, то ничего происходить не должно
-  });
+  // elements.postsContainer.addEventListener('click', (e) => {
+  // e.preventDefault();
+  // dom api - перехват и всплытие объясняет почему отрабатывает когда кликаем по ссылкам
+  // нужно условие, если кликнули по ссылке, то меняется состояние
+  // становится серая
+  // если по пустому месту, то ничего происходить не должно
+  // });
 
   updateRss(state); // запускаем, сама крутится и делает
 };

@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 const handleProcessState = (elements, processState, initialState, i18nInstance) => {
   const { form } = elements;
   const urlField = elements.fields.url;
@@ -60,13 +58,12 @@ const renderPosts = (elements, value, initialState, i18nInstance) => {
 
   const liPosts = [];
   initialState.posts.forEach((post) => {
-    const id = _.uniqueId(); // перенести в init
     const liPost = document.createElement('li');
     liPost.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const aPost = document.createElement('a');
     aPost.classList.add('fw-bold');
     aPost.setAttribute('href', post.link);
-    aPost.setAttribute('data-id', id);
+    aPost.setAttribute('data-id', post.id);
     aPost.setAttribute('rel', 'noopener noreferrer');
     aPost.setAttribute('target', '_blank');
     aPost.innerText = post.title;
@@ -74,7 +71,7 @@ const renderPosts = (elements, value, initialState, i18nInstance) => {
     const buttonPost = document.createElement('button');
     buttonPost.setAttribute('type', 'button');
     buttonPost.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    buttonPost.setAttribute('data-id', id);
+    buttonPost.setAttribute('data-id', post.id);
     buttonPost.setAttribute('data-bs-toggle', 'modal');
     buttonPost.setAttribute('data-bs-target', '#modal');
     buttonPost.innerText = i18nInstance.t('view');
