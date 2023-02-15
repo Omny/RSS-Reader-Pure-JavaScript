@@ -23,7 +23,7 @@ function parseRSS(xml) {
   const description = xmlDoc.querySelector('description').textContent;
   const link = xmlDoc.querySelector('link').textContent;
 
-  const posts = Array.from(xmlDoc.querySelectorAll('item')).map((post) => ({
+  const posts = [...xmlDoc.querySelectorAll('item')].map((post) => ({
     title: post.querySelector('title').textContent,
     link: post.querySelector('link').textContent,
     description: post.querySelector('description').textContent,
@@ -40,11 +40,11 @@ function parseRSS(xml) {
 const loadRss = (url, state) => {
   axios.get(buildProxyUrl(url))
     .then((response) => {
-      const parsedContent = parseRSS(response.data.contents);
-      if (!parsedContent) {
+      const { contents } = response.data;
+      if (!contents) {
         throw new Error(`urlDownloadError: ${url}`);
       }
-
+      const parsedContent = parseRSS(contents);
       const {
         description,
         title,
@@ -61,18 +61,17 @@ const loadRss = (url, state) => {
         link,
       });
 
-      const newPosts = [];
-      posts.forEach((post) => {
-        const id = _.uniqueId();
-        newPosts.push({
-          feedId,
-          id,
-          ...post,
-        });
-      });
-      // const isPostLinkDuplicate = (post, othPost) => post.link === othPost.link;
-      const mergedPosts = _.unionBy(state.posts, newPosts, 'link');
-      state.posts = mergedPosts;
+      const postsToAdd = posts.map((post) => ({
+        feedId,
+        id: _.uniqueId(),
+        ...post,
+      }));
+
+      const mergedPosts = _.unionBy(state.posts, postsToAdd, (post) => `${post.feedId}-${post.title}-${post.link}`);
+      if (!_.isEqual(state.posts, mergedPosts)) {
+        state.posts = mergedPosts;
+        console.log('добавление прошло');
+      }
 
       state.form.error = null;
       state.form.processState = 'sent';
@@ -94,30 +93,30 @@ const loadRss = (url, state) => {
 const updateRss = (state) => {
   const handler = () => {
     state.feeds.forEach((feed) => {
+      if (state.form.processState === 'sending') {
+        return;
+      }
       const { url, id: feedId } = feed;
-      // console.log(feedId, url);
       axios.get(buildProxyUrl(url))
         .then((response) => {
-          const parsedContent = parseRSS(response.data.contents);
-          if (!parsedContent) {
+          const { contents } = response.data;
+          if (!contents) {
             throw new Error(`urlDownloadError: ${url}`);
           }
+          const parsedContent = parseRSS(contents);
           const { posts } = parsedContent;
 
-          const newPosts = [];
-          posts.forEach((post) => {
-            const id = _.uniqueId();
-            newPosts.push({
-              feedId,
-              id,
-              ...post,
-            });
-          });
-          // const isPostLinkDuplicate = (post, othPost) => post.link === othPost.link;
-          const mergedPosts = _.unionBy(state.posts, newPosts, 'link');
-          state.posts = mergedPosts;
+          const postsToAdd = posts.map((post) => ({
+            feedId,
+            id: _.uniqueId(),
+            ...post,
+          }));
 
-          console.log('axios объединение прошло');
+          const mergedPosts = _.unionBy(state.posts, postsToAdd, (post) => `${post.feedId}-${post.title}-${post.link}`);
+          if (!_.isEqual(state.posts, mergedPosts)) {
+            state.posts = mergedPosts;
+            console.log('обновление прошло');
+          }
         });
     });
 
@@ -125,14 +124,6 @@ const updateRss = (state) => {
   };
   return handler;
 };
-// state.feeds.forEach((feed) => {
-//   const { url, id: feedId } = feed;
-//   console.log(url, feedId);
-
-// });
-// используй finaly
-
-
 
 const validateUrl = (url, urlsList) => {
   const urlSchema = yup.string().url('invalidUrlFormat').required('urlIsRequired').notOneOf(urlsList, 'urlIsDuplicate');
