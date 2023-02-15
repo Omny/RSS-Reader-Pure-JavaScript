@@ -38,13 +38,13 @@ function parseRSS(xml) {
 }
 
 const loadRss = (url, state) => {
-  const proxyUrl = buildProxyUrl(url);
-  axios.get(proxyUrl)
+  axios.get(buildProxyUrl(url))
     .then((response) => {
-      if (!response.data.contents) {
-        throw new Error('urlDownloadError');
-      }
       const parsedContent = parseRSS(response.data.contents);
+      if (!parsedContent) {
+        throw new Error(`urlDownloadError: ${url}`);
+      }
+
       const {
         description,
         title,
@@ -80,22 +80,59 @@ const loadRss = (url, state) => {
       // console.log(response);
     })
     .catch((error) => {
-      console.log('error: ', error.code);
+      // console.log('error: ', error.code);
       if (error.code === 'ERR_NETWORK') {
         state.form.error = 'networkError';
       } else {
         state.form.error = 'urlDownloadError';
       }
       state.form.processState = 'error';
-      console.log('ошибка axios');
+      // console.log('ошибка axios');
     });
 };
 
 const updateRss = (state) => {
-  // обновление фидов и запрос новых постов раз в 5 секунд
-  // используй finaly
-  // подумай над promiseAll
+  const handler = () => {
+    state.feeds.forEach((feed) => {
+      const { url, id: feedId } = feed;
+      // console.log(feedId, url);
+      axios.get(buildProxyUrl(url))
+        .then((response) => {
+          const parsedContent = parseRSS(response.data.contents);
+          if (!parsedContent) {
+            throw new Error(`urlDownloadError: ${url}`);
+          }
+          const { posts } = parsedContent;
+
+          const newPosts = [];
+          posts.forEach((post) => {
+            const id = _.uniqueId();
+            newPosts.push({
+              feedId,
+              id,
+              ...post,
+            });
+          });
+          // const isPostLinkDuplicate = (post, othPost) => post.link === othPost.link;
+          const mergedPosts = _.unionBy(state.posts, newPosts, 'link');
+          state.posts = mergedPosts;
+
+          console.log('axios объединение прошло');
+        });
+    });
+
+    setTimeout(handler, 5000);
+  };
+  return handler;
 };
+// state.feeds.forEach((feed) => {
+//   const { url, id: feedId } = feed;
+//   console.log(url, feedId);
+
+// });
+// используй finaly
+
+
 
 const validateUrl = (url, urlsList) => {
   const urlSchema = yup.string().url('invalidUrlFormat').required('urlIsRequired').notOneOf(urlsList, 'urlIsDuplicate');
@@ -161,7 +198,8 @@ const app = async () => {
   // если по пустому месту, то ничего происходить не должно
   // });
 
-  updateRss(state); // запускаем, сама крутится и делает
+  const updateRssHandler = updateRss(state);
+  updateRssHandler(); // запускаем, сама крутится и делает
 };
 
 export default app;
