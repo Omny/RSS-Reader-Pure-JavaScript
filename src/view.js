@@ -36,7 +36,7 @@ const handleProcessState = (elements, processState, initialState, i18nInstance) 
   }
 };
 
-const renderPosts = (elements, value, initialState, i18nInstance) => {
+const renderPosts = (elements, _value, initialState, i18nInstance) => {
   const { postsContainer } = elements;
   postsContainer.innerHTML = '';
   const cardPosts = document.createElement('div');
@@ -115,14 +115,6 @@ const renderPosts = (elements, value, initialState, i18nInstance) => {
     liFeeds.push(liFeed);
   });
   ulFeeds.append(...liFeeds);
-
-  // feedsContainer.innerText = i18nInstance.t('posts');
-  // container.innerHTML = '';
-
-  // const buttons = state.posts.map();
-  // добавлять данные через textcontent, чтобы избежать уязвимостей
-
-  // container.append(...buttons);
 };
 
 const renderModal = (elements, value, initialState) => {
@@ -135,7 +127,7 @@ const renderModal = (elements, value, initialState) => {
   modalLink.href = clickedPost.link;
 };
 
-const render = (elements, initialState, i18nInstance) => (path, value, prevValue) => {
+const render = (elements, initialState, i18nInstance) => (path, value) => {
   switch (path) {
     case 'form.processState':
       handleProcessState(elements, value, initialState, i18nInstance);

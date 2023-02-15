@@ -67,23 +67,18 @@ const loadRss = (url, state) => {
       const mergedPosts = _.unionBy(state.posts, postsToAdd, (post) => `${post.feedId}-${post.title}-${post.link}`);
       if (!_.isEqual(state.posts, mergedPosts)) {
         state.posts = mergedPosts;
-        console.log('добавление прошло');
       }
 
       state.form.error = null;
       state.form.processState = 'sent';
-      console.log('axios прошел');
-      // console.log(response);
     })
     .catch((error) => {
-      // console.log('error: ', error.code);
       if (error.code === 'ERR_NETWORK') {
         state.form.error = 'networkError';
       } else {
         state.form.error = 'urlDownloadError';
       }
       state.form.processState = 'error';
-      // console.log('ошибка axios');
     });
 };
 
@@ -113,7 +108,6 @@ const updateRss = (state) => {
           const mergedPosts = _.unionBy(state.posts, postsToAdd, (post) => `${post.feedId}-${post.title}-${post.link}`);
           if (!_.isEqual(state.posts, mergedPosts)) {
             state.posts = mergedPosts;
-            console.log('обновление прошло');
           }
         });
     });
@@ -177,31 +171,22 @@ const app = async () => {
     const urlsList = state.feeds.map((feed) => feed.url);
     validateUrl(url, urlsList)
       .then(() => {
-        console.log('валидация прошла');
         loadRss(url, state);
       })
       .catch((error) => {
-        console.log('ошибка валидации');
         state.form.error = error.message;
         state.form.processState = 'error';
-      })
-      .then(() => console.log(state));
+      });
   });
 
   elements.postsContainer.addEventListener('click', (e) => {
-    // e.preventDefault();
     const clickedDataId = e.target.getAttribute('data-id');
     state.uiState.clickedDataId = clickedDataId;
     state.uiState.clickedIds.add(clickedDataId);
-    // console.log(state);
-    // dom api - перехват и всплытие объясняет почему отрабатывает когда кликаем по ссылкам
-    // нужно условие, если кликнули по ссылке, то меняется состояние
-    // становится серая
-    // если по пустому месту, то ничего происходить не должно
   });
 
   const updateRssHandler = updateRss(state);
-  updateRssHandler(); // запускаем, сама крутится и делает
+  updateRssHandler();
 };
 
 export default app;
