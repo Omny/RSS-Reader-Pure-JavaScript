@@ -61,7 +61,8 @@ const renderPosts = (elements, value, initialState, i18nInstance) => {
     const liPost = document.createElement('li');
     liPost.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const aPost = document.createElement('a');
-    aPost.classList.add('fw-bold');
+    const postClasses = (initialState.uiState.clickedIds.has(post.id)) ? ['fw-normal', 'link-secondary'] : ['fw-bold'];
+    aPost.classList.add(...postClasses);
     aPost.setAttribute('href', post.link);
     aPost.setAttribute('data-id', post.id);
     aPost.setAttribute('rel', 'noopener noreferrer');
@@ -124,6 +125,16 @@ const renderPosts = (elements, value, initialState, i18nInstance) => {
   // container.append(...buttons);
 };
 
+const renderModal = (elements, value, initialState) => {
+  const { clickedDataId } = initialState.uiState;
+  const { modalTitle, modalBody, modalLink } = elements.modal;
+  const { posts } = initialState;
+  const clickedPost = posts.find((post) => post.id === clickedDataId);
+  modalTitle.textContent = clickedPost.title;
+  modalBody.textContent = clickedPost.description;
+  modalLink.href = clickedPost.link;
+};
+
 const render = (elements, initialState, i18nInstance) => (path, value, prevValue) => {
   switch (path) {
     case 'form.processState':
@@ -131,6 +142,14 @@ const render = (elements, initialState, i18nInstance) => (path, value, prevValue
       break;
 
     case 'posts':
+      renderPosts(elements, value, initialState, i18nInstance);
+      break;
+
+    case 'uiState.clickedDataId':
+      renderModal(elements, value, initialState);
+      break;
+
+    case 'uiState.clickedIds':
       renderPosts(elements, value, initialState, i18nInstance);
       break;
 

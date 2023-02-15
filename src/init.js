@@ -19,10 +19,6 @@ function parseRSS(xml) {
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(xml, 'text/xml');
 
-  const title = xmlDoc.querySelector('title').textContent;
-  const description = xmlDoc.querySelector('description').textContent;
-  const link = xmlDoc.querySelector('link').textContent;
-
   const posts = [...xmlDoc.querySelectorAll('item')].map((post) => ({
     title: post.querySelector('title').textContent,
     link: post.querySelector('link').textContent,
@@ -30,25 +26,26 @@ function parseRSS(xml) {
   }));
 
   return {
-    title,
-    description,
-    link,
+    title: xmlDoc.querySelector('title').textContent,
+    link: xmlDoc.querySelector('link'),
+    description: xmlDoc.querySelector('description').textContent,
     posts,
   };
 }
 
 const loadRss = (url, state) => {
-  axios.get(buildProxyUrl(url))
+  const proxyUrl = buildProxyUrl(url);
+  axios.get(proxyUrl)
     .then((response) => {
       const { contents } = response.data;
-      if (!contents) {
-        throw new Error(`urlDownloadError: ${url}`);
+      if (!contents || response.data.status.http_code !== 200) {
+        throw new Error(`urlDownloadError: ${proxyUrl}`);
       }
       const parsedContent = parseRSS(contents);
       const {
-        description,
         title,
         link,
+        description,
         posts,
       } = parsedContent;
 
@@ -56,9 +53,9 @@ const loadRss = (url, state) => {
       state.feeds.push({
         id: feedId,
         url,
-        description,
         title,
         link,
+        description,
       });
 
       const postsToAdd = posts.map((post) => ({
@@ -97,11 +94,12 @@ const updateRss = (state) => {
         return;
       }
       const { url, id: feedId } = feed;
-      axios.get(buildProxyUrl(url))
+      const proxyUrl = buildProxyUrl(url);
+      axios.get(proxyUrl)
         .then((response) => {
           const { contents } = response.data;
-          if (!contents) {
-            throw new Error(`urlDownloadError: ${url}`);
+          if (!contents || response.data.status.http_code !== 200) {
+            throw new Error(`urlDownloadError: ${proxyUrl}`);
           }
           const parsedContent = parseRSS(contents);
           const { posts } = parsedContent;
@@ -148,6 +146,11 @@ const app = async () => {
     submitButton: document.querySelector('button[type="submit"]'),
     postsContainer: document.querySelector('.posts'),
     feedsContainer: document.querySelector('.feeds'),
+    modal: {
+      modalTitle: document.querySelector('.modal-title'),
+      modalBody: document.querySelector('.modal-body'),
+      modalLink: document.querySelector('.modal-footer > .full-article'),
+    },
   };
 
   const initialState = {
@@ -156,6 +159,10 @@ const app = async () => {
     form: {
       error: null,
       processState: 'filling',
+    },
+    uiState: {
+      clickedDataId: null,
+      clickedIds: new Set(),
     },
   };
 
@@ -181,13 +188,17 @@ const app = async () => {
       .then(() => console.log(state));
   });
 
-  // elements.postsContainer.addEventListener('click', (e) => {
-  // e.preventDefault();
-  // dom api - перехват и всплытие объясняет почему отрабатывает когда кликаем по ссылкам
-  // нужно условие, если кликнули по ссылке, то меняется состояние
-  // становится серая
-  // если по пустому месту, то ничего происходить не должно
-  // });
+  elements.postsContainer.addEventListener('click', (e) => {
+    // e.preventDefault();
+    const clickedDataId = e.target.getAttribute('data-id');
+    state.uiState.clickedDataId = clickedDataId;
+    state.uiState.clickedIds.add(clickedDataId);
+    // console.log(state);
+    // dom api - перехват и всплытие объясняет почему отрабатывает когда кликаем по ссылкам
+    // нужно условие, если кликнули по ссылке, то меняется состояние
+    // становится серая
+    // если по пустому месту, то ничего происходить не должно
+  });
 
   const updateRssHandler = updateRss(state);
   updateRssHandler(); // запускаем, сама крутится и делает
