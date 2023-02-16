@@ -47,7 +47,7 @@ const mergePosts = (posts1, posts2) => {
   return [...posts1, ...posts2].reduce(filterDuplicates, []);
 };
 
-const isEqualPosts = (posts1, posts2) => JSON.stringify(posts1) !== JSON.stringify(posts2);
+const isEqualPosts = (posts1, posts2) => JSON.stringify(posts1) === JSON.stringify(posts2);
 
 const loadRss = (url, state) => {
   const proxyUrl = buildProxyUrl(url);
