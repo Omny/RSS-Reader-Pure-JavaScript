@@ -133,7 +133,6 @@ const updateRss = (state) => {
 
           const mergedPosts = mergePosts(state.posts, postsToAdd);
           if (JSON.stringify(state.posts) !== JSON.stringify(mergedPosts)) {
-            console.log('updated');
             state.posts = mergedPosts;
           }
         });
