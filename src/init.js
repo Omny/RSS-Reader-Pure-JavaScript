@@ -56,9 +56,6 @@ const loadRss = (url, state) => {
   axios.get(proxyUrl)
     .then((response) => {
       const { contents } = response.data;
-      if (!contents || response.data.status.http_code !== 200) {
-        throw new Error(`urlDownloadError: ${proxyUrl}`);
-      }
       const parsedContent = parseRSS(contents);
       const {
         title,
@@ -111,9 +108,6 @@ const updateRss = (state) => {
       axios.get(proxyUrl)
         .then((response) => {
           const { contents } = response.data;
-          if (!contents || response.data.status.http_code !== 200) {
-            throw new Error(`urlDownloadError: ${proxyUrl}`);
-          }
           const parsedContent = parseRSS(contents);
           const { posts } = parsedContent;
 
