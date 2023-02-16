@@ -51,18 +51,28 @@ const mergePosts = (posts1, posts2) => {
 
 const isEqualPosts = (posts1, posts2) => JSON.stringify(posts1) === JSON.stringify(posts2);
 
+const addNewPosts = (posts, feedId, state) => {
+  const postsToAdd = posts.map((post) => ({
+    feedId,
+    id: generateUniqueId(),
+    ...post,
+  }));
+  const mergedPosts = mergePosts(state.posts, postsToAdd);
+  if (!isEqualPosts(state.posts, mergedPosts)) {
+    state.posts = mergedPosts;
+  }
+};
+
 const loadRss = (url, state) => {
   const proxyUrl = buildProxyUrl(url);
   axios.get(proxyUrl)
     .then((response) => {
-      const { contents } = response.data;
-      const parsedContent = parseRSS(contents);
       const {
         title,
         link,
         description,
         posts,
-      } = parsedContent;
+      } = parseRSS(response.data.contents);
 
       const feedId = generateUniqueId();
       state.feeds.push({
@@ -72,27 +82,13 @@ const loadRss = (url, state) => {
         link,
         description,
       });
-
-      const postsToAdd = posts.map((post) => ({
-        feedId,
-        id: generateUniqueId(),
-        ...post,
-      }));
-
-      const mergedPosts = mergePosts(state.posts, postsToAdd);
-      if (!isEqualPosts(state.posts, mergedPosts)) {
-        state.posts = mergedPosts;
-      }
+      addNewPosts(posts, feedId, state);
 
       state.form.error = null;
       state.form.processState = 'sent';
     })
     .catch((error) => {
-      if (error.code === 'ERR_NETWORK') {
-        state.form.error = 'networkError';
-      } else {
-        state.form.error = 'urlDownloadError';
-      }
+      state.form.error = (error.code === 'ERR_NETWORK') ? 'networkError' : 'urlDownloadError';
       state.form.processState = 'error';
     });
 };
@@ -107,23 +103,10 @@ const updateRss = (state) => {
       const proxyUrl = buildProxyUrl(url);
       axios.get(proxyUrl)
         .then((response) => {
-          const { contents } = response.data;
-          const parsedContent = parseRSS(contents);
-          const { posts } = parsedContent;
-
-          const postsToAdd = posts.map((post) => ({
-            feedId,
-            id: generateUniqueId(),
-            ...post,
-          }));
-
-          const mergedPosts = mergePosts(state.posts, postsToAdd);
-          if (!isEqualPosts(state.posts, mergedPosts)) {
-            state.posts = mergedPosts;
-          }
+          const { posts } = parseRSS(response.data.contents);
+          addNewPosts(posts, feedId, state);
         });
     });
-
     setTimeout(handler, 5000);
   };
   return handler;
