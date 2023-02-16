@@ -15,7 +15,9 @@ Node.js v18 and higher (not tested on earlier versions)
 ## How to install and serve
 
 make install
+
 make develop
+
 make build
 
 ## Demo
