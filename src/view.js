@@ -1,7 +1,6 @@
 const handleProcessState = (elements, processState, initialState, i18nInstance) => {
   const urlField = elements.fields.url;
-  const { submitButton } = elements;
-  const { feedbackElement } = elements;
+  const { submitButton, feedbackElement } = elements;
 
   switch (processState) {
     case 'sent':
