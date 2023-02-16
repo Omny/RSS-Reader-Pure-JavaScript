@@ -36,6 +36,19 @@ function generateUniqueId() {
   return `${uniqueId}`;
 }
 
+const mergePosts = (posts1, posts2) => {
+  const filterDuplicates = (acc, post) => {
+    const isEqual = acc.some((p) => p.feedId === post.feedId && p.title === post.title);
+    if (!isEqual) {
+      acc.push(post);
+    }
+    return acc;
+  };
+  return [...posts1, ...posts2].reduce(filterDuplicates, []);
+};
+
+const isEqualPosts = (posts1, posts2) => JSON.stringify(posts1) !== JSON.stringify(posts2);
+
 const loadRss = (url, state) => {
   const proxyUrl = buildProxyUrl(url);
   axios.get(proxyUrl)
@@ -67,19 +80,8 @@ const loadRss = (url, state) => {
         ...post,
       }));
 
-      function mergePosts(posts1, posts2) {
-        function filterDuplicates(acc, post) {
-          const isEqual = acc.some((p) => p.feedId === post.feedId && p.title === post.title);
-          if (!isEqual) {
-            acc.push(post);
-          }
-          return acc;
-        }
-        return [...posts1, ...posts2].reduce(filterDuplicates, []);
-      }
-
       const mergedPosts = mergePosts(state.posts, postsToAdd);
-      if (JSON.stringify(state.posts) !== JSON.stringify(mergedPosts)) {
+      if (!isEqualPosts(state.posts, mergedPosts)) {
         state.posts = mergedPosts;
       }
 
@@ -119,19 +121,8 @@ const updateRss = (state) => {
             ...post,
           }));
 
-          function mergePosts(posts1, posts2) {
-            function filterDuplicates(acc, post) {
-              const isEqual = acc.some((p) => p.feedId === post.feedId && p.title === post.title);
-              if (!isEqual) {
-                acc.push(post);
-              }
-              return acc;
-            }
-            return [...posts1, ...posts2].reduce(filterDuplicates, []);
-          }
-
           const mergedPosts = mergePosts(state.posts, postsToAdd);
-          if (JSON.stringify(state.posts) !== JSON.stringify(mergedPosts)) {
+          if (!isEqualPosts(state.posts, mergedPosts)) {
             state.posts = mergedPosts;
           }
         });
