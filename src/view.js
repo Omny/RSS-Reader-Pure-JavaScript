@@ -1,5 +1,4 @@
 const handleProcessState = (elements, processState, initialState, i18nInstance) => {
-  const { form } = elements;
   const urlField = elements.fields.url;
   const { submitButton } = elements;
   const { feedbackElement } = elements;
@@ -7,7 +6,7 @@ const handleProcessState = (elements, processState, initialState, i18nInstance) 
   switch (processState) {
     case 'sent':
       submitButton.disabled = false;
-      form.reset();
+      urlField.value = '';
       urlField.classList.remove('is-invalid');
       urlField.focus();
       feedbackElement.classList.remove('text-danger');
