@@ -127,9 +127,7 @@ const app = async () => {
 
   const elements = {
     form: document.querySelector('.rss-form'),
-    fields: {
-      url: document.getElementById('url-input'),
-    },
+    urlField: document.getElementById('url-input'),
     feedbackElement: document.querySelector('p.feedback'),
     submitButton: document.querySelector('button[type="submit"]'),
     postsContainer: document.querySelector('.posts'),
