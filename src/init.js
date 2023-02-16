@@ -3,8 +3,6 @@ import 'bootstrap';
 import i18n from 'i18next';
 import * as yup from 'yup';
 import onChange from 'on-change';
-import _ from 'lodash';
-
 import axios from 'axios';
 import resources from './locales/index.js';
 import render from './view.js';
@@ -33,12 +31,18 @@ function parseRSS(xml) {
   };
 }
 
+let uniqueId = 0;
+function generateUniqueId() {
+  uniqueId += 1;
+  return `${uniqueId}`;
+}
+
 const loadRss = (url, state) => {
   const proxyUrl = buildProxyUrl(url);
   axios.get(proxyUrl)
     .then((response) => {
       const { contents } = response.data;
-      if (!contents || response.data.status.http_code !== 200) {
+      if (!contents) { // || response.data.status.http_code !== 200
         throw new Error(`urlDownloadError: ${proxyUrl}`);
       }
       const parsedContent = parseRSS(contents);
@@ -49,7 +53,7 @@ const loadRss = (url, state) => {
         posts,
       } = parsedContent;
 
-      const feedId = _.uniqueId();
+      const feedId = generateUniqueId();
       state.feeds.push({
         id: feedId,
         url,
@@ -60,12 +64,23 @@ const loadRss = (url, state) => {
 
       const postsToAdd = posts.map((post) => ({
         feedId,
-        id: _.uniqueId(),
+        id: generateUniqueId(),
         ...post,
       }));
 
-      const mergedPosts = _.unionBy(state.posts, postsToAdd, (post) => `${post.feedId}-${post.title}-${post.link}`);
-      if (!_.isEqual(state.posts, mergedPosts)) {
+      function mergePosts(posts1, posts2) {
+        function filterDuplicates(acc, post) {
+          const isEqual = acc.some((p) => p.feedId === post.feedId && p.title === post.title);
+          if (!isEqual) {
+            acc.push(post);
+          }
+          return acc;
+        }
+        return [...posts1, ...posts2].reduce(filterDuplicates, []);
+      }
+
+      const mergedPosts = mergePosts(state.posts, postsToAdd);
+      if (JSON.stringify(state.posts) !== JSON.stringify(mergedPosts)) {
         state.posts = mergedPosts;
       }
 
@@ -93,7 +108,7 @@ const updateRss = (state) => {
       axios.get(proxyUrl)
         .then((response) => {
           const { contents } = response.data;
-          if (!contents || response.data.status.http_code !== 200) {
+          if (!contents) { // || response.data.status.http_code !== 200
             throw new Error(`urlDownloadError: ${proxyUrl}`);
           }
           const parsedContent = parseRSS(contents);
@@ -101,12 +116,24 @@ const updateRss = (state) => {
 
           const postsToAdd = posts.map((post) => ({
             feedId,
-            id: _.uniqueId(),
+            id: generateUniqueId(),
             ...post,
           }));
 
-          const mergedPosts = _.unionBy(state.posts, postsToAdd, (post) => `${post.feedId}-${post.title}-${post.link}`);
-          if (!_.isEqual(state.posts, mergedPosts)) {
+          function mergePosts(posts1, posts2) {
+            function filterDuplicates(acc, post) {
+              const isEqual = acc.some((p) => p.feedId === post.feedId && p.title === post.title);
+              if (!isEqual) {
+                acc.push(post);
+              }
+              return acc;
+            }
+            return [...posts1, ...posts2].reduce(filterDuplicates, []);
+          }
+
+          const mergedPosts = mergePosts(state.posts, postsToAdd);
+          if (JSON.stringify(state.posts) !== JSON.stringify(mergedPosts)) {
+            console.log('updated');
             state.posts = mergedPosts;
           }
         });
