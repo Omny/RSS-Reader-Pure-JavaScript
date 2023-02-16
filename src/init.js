@@ -54,7 +54,7 @@ const loadRss = (url, state) => {
   axios.get(proxyUrl)
     .then((response) => {
       const { contents } = response.data;
-      if (!contents || response.data.status.http_code !== 200) {
+      if (response.data.status.http_code !== 200) {
         throw new Error(`urlDownloadError: ${proxyUrl}`);
       }
       const parsedContent = parseRSS(contents);
@@ -109,7 +109,7 @@ const updateRss = (state) => {
       axios.get(proxyUrl)
         .then((response) => {
           const { contents } = response.data;
-          if (!contents || response.data.status.http_code !== 200) {
+          if (response.data.status.http_code !== 200) {
             throw new Error(`urlDownloadError: ${proxyUrl}`);
           }
           const parsedContent = parseRSS(contents);
@@ -139,10 +139,9 @@ const validateUrl = (url, urlsList) => {
 };
 
 const app = async () => {
-  const defaultLanguage = 'ru';
   const i18nInstance = i18n.createInstance();
   await i18nInstance.init({
-    lng: defaultLanguage,
+    lng: 'ru',
     debug: false,
     resources,
   });
