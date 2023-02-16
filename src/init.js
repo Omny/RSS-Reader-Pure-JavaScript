@@ -6,10 +6,12 @@ import axios from 'axios';
 import resources from './locales/index.js';
 import render from './view.js';
 
-const buildProxyUrl = (url) => {
-  const proxy = 'https://allorigins.hexlet.app/get?disableCache=true&url=';
-  const encodedUrl = encodeURIComponent(url);
-  return `${proxy}${encodedUrl}`;
+export const buildProxyUrl = (url) => {
+  const proxy = 'https://allorigins.hexlet.app';
+  const proxyURL = new URL(`${proxy}/get`);
+  proxyURL.searchParams.set('url', url);
+  proxyURL.searchParams.set('disableCache', 'true');
+  return proxyURL.href;
 };
 
 function parseRSS(xml) {
@@ -54,7 +56,7 @@ const loadRss = (url, state) => {
   axios.get(proxyUrl)
     .then((response) => {
       const { contents } = response.data;
-      if (response.data.status.http_code !== 200) {
+      if (!contents || response.data.status.http_code !== 200) {
         throw new Error(`urlDownloadError: ${proxyUrl}`);
       }
       const parsedContent = parseRSS(contents);
@@ -109,7 +111,7 @@ const updateRss = (state) => {
       axios.get(proxyUrl)
         .then((response) => {
           const { contents } = response.data;
-          if (response.data.status.http_code !== 200) {
+          if (!contents || response.data.status.http_code !== 200) {
             throw new Error(`urlDownloadError: ${proxyUrl}`);
           }
           const parsedContent = parseRSS(contents);
