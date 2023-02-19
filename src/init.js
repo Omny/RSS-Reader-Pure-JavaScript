@@ -24,13 +24,15 @@ const parseRSS = (xml) => {
     description: post.querySelector('description').textContent,
   }));
 
-  return {
+  const feed = {
     title: xmlDoc.querySelector('title').textContent,
     link: xmlDoc.querySelector('link'),
     description: xmlDoc.querySelector('description').textContent,
     posts,
   };
-}
+
+  return feed;
+};
 
 let uniqueId = 0;
 function generateUniqueId() {
