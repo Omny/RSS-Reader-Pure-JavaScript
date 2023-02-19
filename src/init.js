@@ -50,7 +50,6 @@ const addNewPosts = (posts, feedId, state) => {
   const newPosts = posts.filter((post1) => !state.posts.some((post2) => isDouble(post1, post2)));
 
   state.posts = [...state.posts, ...newPosts];
-  console.log(state.posts);
 };
 
 const loadRss = (url, state) => {
