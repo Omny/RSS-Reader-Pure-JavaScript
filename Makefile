@@ -9,5 +9,3 @@ develop:
 
 lint:
 	npx eslint .
-
-.PHONY: test
