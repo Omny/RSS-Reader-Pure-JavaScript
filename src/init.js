@@ -14,7 +14,7 @@ export const buildProxyUrl = (url) => {
   return proxyURL.href;
 };
 
-function parseRSS(xml) {
+const parseRSS = (xml) => {
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(xml, 'text/xml');
 
