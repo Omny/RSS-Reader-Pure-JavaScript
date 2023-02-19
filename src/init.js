@@ -7,8 +7,8 @@ import resources from './locales/index.js';
 import render from './view.js';
 
 export const buildProxyUrl = (url) => {
-  const proxy = 'https://allorigins.hexlet.app';
-  const proxyURL = new URL(`${proxy}/get`);
+  const proxy = 'https://allorigins.hexlet.app/get';
+  const proxyURL = new URL(proxy);
   proxyURL.searchParams.set('url', url);
   proxyURL.searchParams.set('disableCache', 'true');
   return proxyURL.href;
