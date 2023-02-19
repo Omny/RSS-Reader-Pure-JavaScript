@@ -40,29 +40,17 @@ function generateUniqueId() {
   return `${uniqueId}`;
 }
 
-const mergePosts = (posts1, posts2) => {
-  const filterDuplicates = (acc, post) => {
-    const isEqual = acc.some((p) => p.feedId === post.feedId && p.title === post.title);
-    if (!isEqual) {
-      acc.push(post);
-    }
-    return acc;
-  };
-  return [...posts1, ...posts2].reduce(filterDuplicates, []);
-};
-
-const isEqualPosts = (posts1, posts2) => JSON.stringify(posts1) === JSON.stringify(posts2);
-
 const addNewPosts = (posts, feedId, state) => {
-  const postsToAdd = posts.map((post) => ({
+  posts.map((post) => ({
     feedId,
     id: generateUniqueId(),
     ...post,
   }));
-  const mergedPosts = mergePosts(state.posts, postsToAdd);
-  if (!isEqualPosts(state.posts, mergedPosts)) {
-    state.posts = mergedPosts;
-  }
+  const isDouble = (post1, post2) => post1.feedId === post2.feedId && post1.title === post2.title;
+  const newPosts = posts.filter((post1) => !state.posts.some((post2) => isDouble(post1, post2)));
+
+  state.posts = [...state.posts, ...newPosts];
+  console.log(state.posts);
 };
 
 const loadRss = (url, state) => {
