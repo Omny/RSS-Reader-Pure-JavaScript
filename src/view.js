@@ -1,9 +1,9 @@
 const handleProcessState = (elements, processState, initialState, i18nInstance) => {
   const { urlField, submitButton, feedbackElement } = elements;
 
+  submitButton.disabled = (processState === 'sending');
   switch (processState) {
     case 'sent':
-      submitButton.disabled = false;
       urlField.value = '';
       urlField.classList.remove('is-invalid');
       urlField.focus();
@@ -13,19 +13,14 @@ const handleProcessState = (elements, processState, initialState, i18nInstance) 
       break;
 
     case 'error':
-      submitButton.disabled = false;
       urlField.classList.add('is-invalid');
       feedbackElement.classList.remove('text-success');
       feedbackElement.classList.add('text-danger');
       feedbackElement.textContent = i18nInstance.t(initialState.form.error);
       break;
 
-    case 'sending':
-      submitButton.disabled = true;
-      break;
-
     case 'filling':
-      submitButton.disabled = false;
+    case 'sending':
       break;
 
     default:
