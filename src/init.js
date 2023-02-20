@@ -84,18 +84,19 @@ const loadRss = (url, state) => {
 
 const updateRss = (state) => {
   const handler = () => {
-    state.feeds.forEach((feed) => {
-      if (state.form.processState === 'sending') {
-        return;
-      }
-      const { url, id: feedId } = feed;
-      const proxyUrl = buildProxyUrl(url);
-      axios.get(proxyUrl)
-        .then((response) => {
+    const promises = state.feeds.map((feed) => {
+      const { url } = feed;
+      const proxyURL = buildProxyUrl(url);
+      return axios.get(proxyURL);
+    });
+    Promise.all(promises)
+      .then((responses) => {
+        responses.forEach((response, index) => {
           const { posts } = parseRSS(response.data.contents);
+          const feedId = state.feeds[index].id;
           addNewPosts(posts, feedId, state);
         });
-    });
+      });
     setTimeout(handler, 5000);
   };
   return handler;
