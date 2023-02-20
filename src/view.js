@@ -41,7 +41,7 @@ const renderPosts = (elements, initialState, i18nInstance) => {
 
   const cardPostsTitle = document.createElement('h2');
   cardPostsTitle.classList.add('card-title', 'h4');
-  cardPostsTitle.innerText = i18nInstance.t('posts');
+  cardPostsTitle.textContent = i18nInstance.t('posts');
   cardPostsBody.append(cardPostsTitle);
 
   const ulPosts = document.createElement('ul');
@@ -59,7 +59,7 @@ const renderPosts = (elements, initialState, i18nInstance) => {
     aPost.setAttribute('data-id', post.id);
     aPost.setAttribute('rel', 'noopener noreferrer');
     aPost.setAttribute('target', '_blank');
-    aPost.innerText = post.title;
+    aPost.textContent = post.title;
     liPost.append(aPost);
     const buttonPost = document.createElement('button');
     buttonPost.setAttribute('type', 'button');
@@ -67,7 +67,7 @@ const renderPosts = (elements, initialState, i18nInstance) => {
     buttonPost.setAttribute('data-id', post.id);
     buttonPost.setAttribute('data-bs-toggle', 'modal');
     buttonPost.setAttribute('data-bs-target', '#modal');
-    buttonPost.innerText = i18nInstance.t('view');
+    buttonPost.textContent = i18nInstance.t('view');
     liPost.append(buttonPost);
     liPosts.push(liPost);
   });
@@ -87,7 +87,7 @@ const renderFeeds = (elements, initialState, i18nInstance) => {
 
   const cardFeedsTitle = document.createElement('h2');
   cardFeedsTitle.classList.add('card-title', 'h4');
-  cardFeedsTitle.innerText = i18nInstance.t('feeds');
+  cardFeedsTitle.textContent = i18nInstance.t('feeds');
   cardFeedsBody.append(cardFeedsTitle);
 
   const ulFeeds = document.createElement('ul');
@@ -100,11 +100,11 @@ const renderFeeds = (elements, initialState, i18nInstance) => {
     liFeed.classList.add('list-group-item', 'border-0', 'border-end-0');
     const h3Feed = document.createElement('h3');
     h3Feed.classList.add('h6', 'm-0');
-    h3Feed.innerText = feed.title;
+    h3Feed.textContent = feed.title;
     liFeed.append(h3Feed);
     const pFeed = document.createElement('p');
     pFeed.classList.add('m-0', 'small', 'text-black-50');
-    pFeed.innerText = feed.description;
+    pFeed.textContent = feed.description;
     liFeed.append(pFeed);
     liFeeds.push(liFeed);
   });
