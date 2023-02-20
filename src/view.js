@@ -28,7 +28,7 @@ const handleProcessState = (elements, processState, initialState, i18nInstance) 
   }
 };
 
-const renderPosts = (elements, _value, initialState, i18nInstance) => {
+const renderPosts = (elements, initialState, i18nInstance) => {
   const { postsContainer } = elements;
   postsContainer.innerHTML = '';
   const cardPosts = document.createElement('div');
@@ -74,7 +74,7 @@ const renderPosts = (elements, _value, initialState, i18nInstance) => {
   ulPosts.append(...liPosts);
 };
 
-const renderFeeds = (elements, _value, initialState, i18nInstance) => {
+const renderFeeds = (elements, initialState, i18nInstance) => {
   const { feedsContainer } = elements;
   feedsContainer.innerHTML = '';
   const cardFeeds = document.createElement('div');
@@ -111,7 +111,7 @@ const renderFeeds = (elements, _value, initialState, i18nInstance) => {
   ulFeeds.append(...liFeeds);
 };
 
-const renderModal = (elements, value, initialState) => {
+const renderModal = (elements, initialState) => {
   const { clickedDataId } = initialState.uiState;
   const { modalTitle, modalBody, modalLink } = elements.modal;
   const { posts } = initialState;
@@ -128,19 +128,19 @@ const render = (elements, initialState, i18nInstance) => (path, value) => {
       break;
 
     case 'posts':
-      renderPosts(elements, value, initialState, i18nInstance);
+      renderPosts(elements, initialState, i18nInstance);
       break;
 
     case 'feeds':
-      renderFeeds(elements, value, initialState, i18nInstance);
+      renderFeeds(elements, initialState, i18nInstance);
       break;
 
     case 'uiState.clickedDataId':
-      renderModal(elements, value, initialState);
+      renderModal(elements, initialState);
       break;
 
     case 'uiState.clickedIds':
-      renderPosts(elements, value, initialState, i18nInstance);
+      renderPosts(elements, initialState, i18nInstance);
       break;
 
     default:
