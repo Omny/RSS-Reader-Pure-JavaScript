@@ -96,8 +96,10 @@ const updateRss = (state) => {
           const feedId = state.feeds[index].id;
           addNewPosts(posts, feedId, state);
         });
+      })
+      .finally(() => {
+        setTimeout(handler, 5000);
       });
-    setTimeout(handler, 5000);
   };
   return handler;
 };
