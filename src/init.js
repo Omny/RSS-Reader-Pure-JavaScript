@@ -31,7 +31,7 @@ const parseRSS = (xml) => {
     posts,
   };
 
-  return feed;
+  return { feed, posts };
 };
 
 let uniqueId = 0;
@@ -56,21 +56,10 @@ const loadRss = (url, state) => {
   const proxyUrl = buildProxyUrl(url);
   axios.get(proxyUrl)
     .then((response) => {
-      const {
-        title,
-        link,
-        description,
-        posts,
-      } = parseRSS(response.data.contents);
+      const { feed, posts } = parseRSS(response.data.contents);
 
       const feedId = generateUniqueId();
-      state.feeds.push({
-        id: feedId,
-        url,
-        title,
-        link,
-        description,
-      });
+      state.feeds.push({ id: feedId, url, ...feed });
       addNewPosts(posts, feedId, state);
 
       state.form.error = null;
