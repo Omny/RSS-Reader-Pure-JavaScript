@@ -26,7 +26,7 @@ const parseRSS = (xml) => {
 
   const feed = {
     title: xmlDoc.querySelector('title').textContent,
-    link: xmlDoc.querySelector('link'),
+    link: xmlDoc.querySelector('link').textContent,
     description: xmlDoc.querySelector('description').textContent,
     posts,
   };
