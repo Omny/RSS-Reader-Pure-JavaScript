@@ -127,20 +127,17 @@ const render = (elements, initialState, i18nInstance) => (path, value) => {
       handleProcessState(elements, value, initialState, i18nInstance);
       break;
 
-    case 'posts':
-      renderPosts(elements, initialState, i18nInstance);
-      break;
-
     case 'feeds':
       renderFeeds(elements, initialState, i18nInstance);
       break;
 
-    case 'uiState.clickedDataId':
-      renderModal(elements, initialState);
-      break;
-
+    case 'posts':
     case 'uiState.clickedIds':
       renderPosts(elements, initialState, i18nInstance);
+      break;
+
+    case 'uiState.clickedDataId':
+      renderModal(elements, initialState);
       break;
 
     default:
