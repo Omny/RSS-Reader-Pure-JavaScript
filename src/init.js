@@ -40,14 +40,14 @@ const generateUniqueId = () => {
 };
 
 const addNewPosts = (posts, feedId, state) => {
-  const newPosts = posts.map((post) => ({
+  const isDouble = (post1, post2) => feedId === post2.feedId && post1.title === post2.title;
+  const newPosts = posts.filter((post1) => !state.posts.some((post2) => isDouble(post1, post2)));
+  const newPostsWithIds = newPosts.map((post) => ({
     feedId,
     id: generateUniqueId(),
     ...post,
   }));
-  const isDouble = (post1, post2) => post1.feedId === post2.feedId && post1.title === post2.title;
-  const addPosts = newPosts.filter((post1) => !state.posts.some((post2) => isDouble(post1, post2)));
-  state.posts.push(...addPosts);
+  state.posts.push(...newPostsWithIds);
 };
 
 const loadRss = (url, state) => {
