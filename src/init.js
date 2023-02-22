@@ -18,17 +18,17 @@ const parseRSS = (xml) => {
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(xml, 'text/xml');
 
-  const posts = [...xmlDoc.querySelectorAll('item')].map((post) => ({
-    title: post.querySelector('title').textContent,
-    link: post.querySelector('link').textContent,
-    description: post.querySelector('description').textContent,
-  }));
-
   const feed = {
     title: xmlDoc.querySelector('title').textContent,
     link: xmlDoc.querySelector('link').textContent,
     description: xmlDoc.querySelector('description').textContent,
   };
+
+  const posts = [...xmlDoc.querySelectorAll('item')].map((post) => ({
+    title: post.querySelector('title').textContent,
+    link: post.querySelector('link').textContent,
+    description: post.querySelector('description').textContent,
+  }));
 
   return { feed, posts };
 };
@@ -47,8 +47,7 @@ const addNewPosts = (posts, feedId, state) => {
   }));
   const isDouble = (post1, post2) => post1.feedId === post2.feedId && post1.title === post2.title;
   const addPosts = newPosts.filter((post1) => !state.posts.some((post2) => isDouble(post1, post2)));
-
-  state.posts = [...state.posts, ...addPosts];
+  state.posts.push(...addPosts);
 };
 
 const loadRss = (url, state) => {
