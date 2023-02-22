@@ -2,6 +2,7 @@ import i18n from 'i18next';
 import * as yup from 'yup';
 import onChange from 'on-change';
 import axios from 'axios';
+import uniqueId from 'lodash.uniqueid';
 import resources from './locales/index.js';
 import render from './view.js';
 
@@ -32,18 +33,12 @@ const parseRSS = (xml) => {
   return { feed, posts };
 };
 
-let uniqueId = 0;
-const generateUniqueId = () => {
-  uniqueId += 1;
-  return `${uniqueId}`;
-};
-
 const addNewPosts = (posts, feedId, state) => {
   const isDouble = (post1, post2) => feedId === post2.feedId && post1.title === post2.title;
   const newPosts = posts.filter((post1) => !state.posts.some((post2) => isDouble(post1, post2)));
   const newPostsWithIds = newPosts.map((post) => ({
     feedId,
-    id: generateUniqueId(),
+    id: uniqueId(),
     ...post,
   }));
   state.posts.push(...newPostsWithIds);
@@ -55,7 +50,7 @@ const loadRss = (url, state) => {
     .then((response) => {
       const { feed, posts } = parseRSS(response.data.contents);
 
-      const feedId = generateUniqueId();
+      const feedId = uniqueId();
       state.feeds.push({ id: feedId, url, ...feed });
       addNewPosts(posts, feedId, state);
 
