@@ -34,10 +34,10 @@ const parseRSS = (xml) => {
 };
 
 let uniqueId = 0;
-function generateUniqueId() {
+const generateUniqueId = () => {
   uniqueId += 1;
   return `${uniqueId}`;
-}
+};
 
 const addNewPosts = (posts, feedId, state) => {
   const newPosts = posts.map((post) => ({
