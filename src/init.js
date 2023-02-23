@@ -64,25 +64,22 @@ const loadRss = (url, state) => {
 };
 
 const updateRss = (state) => {
-  const handler = () => {
-    const promises = state.feeds.map((feed) => {
-      const { url } = feed;
-      const proxyURL = buildProxyUrl(url);
-      return axios.get(proxyURL);
-    });
-    Promise.all(promises)
-      .then((responses) => {
-        responses.forEach((response, index) => {
-          const { posts } = parseRSS(response.data.contents);
-          const feedId = state.feeds[index].id;
-          addNewPosts(posts, feedId, state);
-        });
-      })
-      .finally(() => {
-        setTimeout(handler, 5000);
+  const promises = state.feeds.map((feed) => {
+    const { url } = feed;
+    const proxyURL = buildProxyUrl(url);
+    return axios.get(proxyURL);
+  });
+  Promise.all(promises)
+    .then((responses) => {
+      responses.forEach((response, index) => {
+        const { posts } = parseRSS(response.data.contents);
+        const feedId = state.feeds[index].id;
+        addNewPosts(posts, feedId, state);
       });
-  };
-  return handler;
+    })
+    .finally(() => {
+      setTimeout(updateRss, 5000, state);
+    });
 };
 
 const validateUrl = (url, urlsList) => {
@@ -150,8 +147,7 @@ const app = async () => {
     state.uiState.clickedIds.add(clickedDataId);
   });
 
-  const updateRssHandler = updateRss(state);
-  updateRssHandler();
+  updateRss(state);
 };
 
 export default app;
