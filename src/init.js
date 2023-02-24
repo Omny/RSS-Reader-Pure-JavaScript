@@ -60,11 +60,11 @@ const loadRss = (url, state) => {
       addNewPosts(posts, feedId, state);
 
       state.form.error = null;
-      state.form.processState = 'sent';
+      state.form.state = 'sent';
     })
     .catch((error) => {
       state.form.error = (error.code === 'ERR_NETWORK') ? 'networkError' : 'urlDownloadError';
-      state.form.processState = 'error';
+      state.form.state = 'error';
     });
 };
 
@@ -119,7 +119,7 @@ const app = async () => {
     posts: [],
     form: {
       error: null,
-      processState: 'filling',
+      state: 'filling',
     },
     uiState: {
       clickedDataId: null,
@@ -132,7 +132,7 @@ const app = async () => {
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
     state.form.error = null;
-    state.form.processState = 'sending';
+    state.form.state = 'sending';
     const formData = new FormData(e.target);
     const url = formData.get('url');
     const urlsList = state.feeds.map((feed) => feed.url);
@@ -142,7 +142,7 @@ const app = async () => {
       })
       .catch((error) => {
         state.form.error = error.message;
-        state.form.processState = 'error';
+        state.form.state = 'error';
       });
   });
 
