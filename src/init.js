@@ -16,7 +16,12 @@ export const buildProxyUrl = (url) => {
 
 const parseRSS = (xml) => {
   const parser = new DOMParser();
-  const xmlDoc = parser.parseFromString(xml, 'text/xml');
+  let xmlDoc;
+  try {
+    xmlDoc = parser.parseFromString(xml, 'text/xml');
+  } catch (e) {
+    throw new Error(`Error parsing XML: ${e.message}`);
+  }
 
   const feed = {
     title: xmlDoc.querySelector('title').textContent,
