@@ -59,12 +59,12 @@ const loadRss = (url, state) => {
       state.feeds.push({ id: feedId, url, ...feed });
       addNewPosts(posts, feedId, state);
 
-      state.form.error = null;
-      state.form.state = 'sent';
+      state.error = null;
+      state.formState = 'sent';
     })
     .catch((error) => {
-      state.form.error = (error.code === 'ERR_NETWORK') ? 'networkError' : 'urlDownloadError';
-      state.form.state = 'error';
+      state.error = (error.code === 'ERR_NETWORK') ? 'networkError' : 'urlDownloadError';
+      state.formState = 'error';
     });
 };
 
@@ -117,10 +117,8 @@ const app = async () => {
   const initialState = {
     feeds: [],
     posts: [],
-    form: {
-      error: null,
-      state: 'filling',
-    },
+    formState: 'filling',
+    error: null,
     uiState: {
       clickedDataId: null,
       clickedIds: new Set(),
@@ -131,8 +129,8 @@ const app = async () => {
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
-    state.form.error = null;
-    state.form.state = 'sending';
+    state.error = null;
+    state.formState = 'sending';
     const formData = new FormData(e.target);
     const url = formData.get('url');
     const urlsList = state.feeds.map((feed) => feed.url);
@@ -141,8 +139,8 @@ const app = async () => {
         loadRss(url, state);
       })
       .catch((error) => {
-        state.form.error = error.message;
-        state.form.state = 'error';
+        state.error = error.message;
+        state.formState = 'error';
       });
   });
 

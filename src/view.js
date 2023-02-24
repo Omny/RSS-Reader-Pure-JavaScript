@@ -1,8 +1,8 @@
-const handleProcessState = (elements, processState, initialState, i18nInstance) => {
+const handleFormState = (elements, formState, initialState, i18nInstance) => {
   const { urlField, submitButton, feedbackElement } = elements;
 
-  submitButton.disabled = (processState === 'sending');
-  switch (processState) {
+  submitButton.disabled = (formState === 'sending');
+  switch (formState) {
     case 'sent':
       urlField.value = '';
       urlField.classList.remove('is-invalid');
@@ -16,7 +16,7 @@ const handleProcessState = (elements, processState, initialState, i18nInstance) 
       urlField.classList.add('is-invalid');
       feedbackElement.classList.remove('text-success');
       feedbackElement.classList.add('text-danger');
-      feedbackElement.textContent = i18nInstance.t(initialState.form.error);
+      feedbackElement.textContent = i18nInstance.t(initialState.error);
       break;
 
     case 'filling':
@@ -24,7 +24,7 @@ const handleProcessState = (elements, processState, initialState, i18nInstance) 
       break;
 
     default:
-      throw new Error(`Unknown process state: ${processState}`);
+      throw new Error(`Unknown form state: ${formState}`);
   }
 };
 
@@ -123,8 +123,8 @@ const renderModal = (elements, initialState) => {
 
 const render = (elements, initialState, i18nInstance) => (path, value) => {
   switch (path) {
-    case 'form.processState':
-      handleProcessState(elements, value, initialState, i18nInstance);
+    case 'formState':
+      handleFormState(elements, value, initialState, i18nInstance);
       break;
 
     case 'feeds':
